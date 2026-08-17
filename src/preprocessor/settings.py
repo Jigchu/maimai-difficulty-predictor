@@ -1,10 +1,8 @@
 import json
-from operator import truediv
-from pathlib import Path
 from typing import TypeGuard, TypedDict, cast
 
 from util.build_file import retrieve_build_files
-from util.split_range import parse_range, split_range
+from util.bounded_range import parse_range, split_range
 from util.versions import version_to_int
 
 """
@@ -15,8 +13,8 @@ empty difficulty_filter indicates no filtered difficulties
 
 
 class PreprocessorSettings(TypedDict, total=False):
-    version_filter: tuple[int, int]
-    level_filter: tuple[int, int]
+    version_filter: tuple[float, float]
+    level_filter: tuple[float, float]
     difficulty_filter: list[str]
     filter_utage: bool
 
@@ -73,15 +71,23 @@ def parse_settings(json_object: object) -> PreprocessorSettings | None:
         settings_found = True
         version_range = split_range(json_object["version_filter"])
 
-        settings["level_filter"] = parse_range(
-            range_segments = version_range,
-            segment_to_int = version_to_int,
-            inclusive_upper = lambda x: x + 1,
-            inclusive_lower = lambda x: x - 1,
+        settings["version_filter"] = parse_range(
+            range_segments=version_range,
+            segment_to_number=version_to_int,
+            inclusive_upper=lambda x: x + 1,
+            inclusive_lower=lambda x: x - 1,
         )
 
     if "level_filter" in json_object and isinstance(json_object["level_filter"], str):
         settings_found = True
+        level_range = split_range(json_object["level_filter"])
+
+        settings["level_filter"] = parse_range(
+            range_segments=level_range,
+            segment_to_number=lambda x: float(x),
+            inclusive_upper=lambda x: x + 0.5,
+            inclusive_lower=lambda x: x - 0.5,
+        )
 
     if "difficulty_filter" in json_object and isinstance(
         json_object["difficulty_filter"], list

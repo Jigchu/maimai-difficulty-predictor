@@ -15,17 +15,20 @@ def split_range(range_str: str) -> list[str]:
 
     return [segment.strip() for segment in segments]
 
+
 """
 Returns non inclusive range where [0] is upper and [1] is lower bound. -1 signifies 
 unbounded/no bounds. inclusive_upper and inclusive_lower are called to normalise 
 inclusive bounds to non-inclusive bounds
 """
+
+
 def parse_range(
     range_segments: list[str],
-    segment_to_int: Callable[[str], int],
-    inclusive_upper: Callable[[int], int],
-    inclusive_lower: Callable[[int], int]
-) -> tuple[int, int]:
+    segment_to_number: Callable[[str], float],
+    inclusive_upper: Callable[[float], float],
+    inclusive_lower: Callable[[float], float],
+) -> tuple[float, float]:
     lower = True
     inclusive = False
     equal = False
@@ -49,9 +52,9 @@ def parse_range(
                 pass
             case _:
                 if not segment.isnumeric():
-                    segment = segment_to_int(segment)
+                    segment = segment_to_number(segment)
                 else:
-                    segment = int(segment)
+                    segment = float(segment)
 
                 if equal:
                     lower_bound = upper_bound = segment
