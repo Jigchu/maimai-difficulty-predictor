@@ -1,8 +1,11 @@
 import json
+from operator import truediv
 from pathlib import Path
 from typing import TypeGuard, TypedDict, cast
 
-from util.split_range import split_range
+from util.build_file import retrieve_build_files
+from util.split_range import parse_range, split_range
+from util.versions import version_to_int
 
 """
 version and level filter are non inclusive range
@@ -11,7 +14,7 @@ empty difficulty_filter indicates no filtered difficulties
 """
 
 
-class PreprocessorSettings(TypedDict):
+class PreprocessorSettings(TypedDict, total=False):
     version_filter: tuple[int, int]
     level_filter: tuple[int, int]
     difficulty_filter: list[str]
@@ -40,8 +43,7 @@ def is_valid_json(json_object: object) -> TypeGuard[dict[str, object]]:
 
 
 def return_settings() -> PreprocessorSettings:
-    src_root = Path("../")
-    build_files = src_root.glob("**/build.json")
+    build_files = retrieve_build_files()
 
     for f in build_files:
         with open(f) as file:
@@ -62,7 +64,7 @@ def parse_settings(json_object: object) -> PreprocessorSettings | None:
     if not isinstance(json_object, dict):
         return None
 
-    settings: PreprocessorSettings
+    settings: PreprocessorSettings = {}
     settings_found: bool = False
 
     if "version_filter" in json_object and isinstance(
@@ -70,6 +72,13 @@ def parse_settings(json_object: object) -> PreprocessorSettings | None:
     ):
         settings_found = True
         version_range = split_range(json_object["version_filter"])
+
+        settings["level_filter"] = parse_range(
+            range_segments = version_range,
+            segment_to_int = version_to_int,
+            inclusive_upper = lambda x: x + 1,
+            inclusive_lower = lambda x: x - 1,
+        )
 
     if "level_filter" in json_object and isinstance(json_object["level_filter"], str):
         settings_found = True
