@@ -2,9 +2,9 @@ from typing import TypedDict
 
 from pydantic import BaseModel
 
-from util.build_file import retrieve_build_files
-from util.bounded_range import BoundedRange, parse_range, split_range
-from util.versions import version_to_int
+from misc.build_file import retrieve_build_files
+from misc.bounded_range import BoundedRange, parse_range, split_range
+from misc.versions import version_to_int
 
 
 class PreprocessorSettings(TypedDict):
@@ -13,18 +13,20 @@ class PreprocessorSettings(TypedDict):
     difficulty_filter: list[str]
     filter_utage: bool
 
+
 class PreprocessorJSONFields(BaseModel):
     version_filter: str = ""
     level_filter: str = ""
     difficulty_filter: list[str] = []
     filter_utage: bool = True
 
+
 def return_settings() -> PreprocessorSettings:
     build_files = retrieve_build_files()
     for file in build_files:
         json_string = file.read_text()
         settings = parse_settings(json_string)
-        if (settings is not None):
+        if settings is not None:
             return settings
 
     return PreprocessorSettings(
@@ -77,6 +79,7 @@ def parse_settings(json_string: str) -> PreprocessorSettings | None:
         settings["filter_utage"] = json_fields.filter_utage
 
     return None if not settings_found else settings
+
 
 if __file__:
     preprocessorSettings = return_settings()
