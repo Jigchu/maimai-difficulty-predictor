@@ -1,11 +1,13 @@
-import json
 from pathlib import Path
+from pydantic import BaseModel
 import re
-from typing import cast
 
 from util.build_file import retrieve_build_files
 
 _version_list: list[str] = []
+
+class VersionListBuildFields(BaseModel):
+    chart_directory: str
 
 def update_version_list():
     project_root = Path(__file__).resolve().parent.parent.parent
@@ -17,11 +19,9 @@ def update_version_list():
 
     chart_directory = Path(data_directory, Path("maimai_charts/"))
     build_files = retrieve_build_files()
-    for f in build_files:
-        with open(f) as file:
-            json_object: object = cast(object, json.load(file))
-            if (isinstance(json_object, dict) and "chart_directory" in json_object and isinstance(json_object["chart_directory"], str)):
-                chart_directory = Path(data_directory, Path(json_object["chart_directory"]))
+    for file in build_files:
+        json_fields = VersionListBuildFields.model_validate_json(file.read_text())
+        chart_directory = Path(data_directory, Path(json_fields.chart_directory))
 
     versions = chart_directory.walk().__next__()[1]
     regex = re.compile("[^a-zA-Z]")

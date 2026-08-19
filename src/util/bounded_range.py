@@ -1,5 +1,12 @@
-from typing import Callable
+from typing import Callable, NamedTuple
 
+"""
+A non inclusive range of positive numbers
+value of -1 implies unbounded (inf or neg inf)
+"""
+class BoundedRange(NamedTuple):
+    lower: float
+    upper: float
 
 def split_range(range_str: str) -> list[str]:
     segments: list[str] = []
@@ -16,19 +23,12 @@ def split_range(range_str: str) -> list[str]:
     return [segment.strip() for segment in segments]
 
 
-"""
-Returns non inclusive range where [0] is upper and [1] is lower bound. -1 signifies 
-unbounded/no bounds. inclusive_upper and inclusive_lower are called to normalise 
-inclusive bounds to non-inclusive bounds
-"""
-
-
 def parse_range(
     range_segments: list[str],
     segment_to_number: Callable[[str], float],
     inclusive_upper: Callable[[float], float],
     inclusive_lower: Callable[[float], float],
-) -> tuple[float, float]:
+) -> BoundedRange:
     lower = True
     inclusive = False
     equal = False
@@ -67,4 +67,4 @@ def parse_range(
                 elif not lower and inclusive:
                     upper_bound = inclusive_upper(segment)
 
-    return (lower_bound, upper_bound)
+    return BoundedRange(lower=lower_bound, upper=upper_bound)
