@@ -5,6 +5,7 @@ import re
 from misc.settings import misc_settings
 
 data_directory: Path = Path()
+difficulty_list: list[str] = ["basic", "advanced", "expert", "master", "re:master", "utage"]
 _version_list: list[str] = []
 
 

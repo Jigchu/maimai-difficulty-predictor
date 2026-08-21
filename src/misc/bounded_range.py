@@ -1,12 +1,15 @@
+from math import inf
 from typing import Callable, NamedTuple
 
 """
 A non inclusive range of positive numbers
-value of -1 implies unbounded (inf or neg inf)
 """
 class BoundedRange(NamedTuple):
     lower: float
     upper: float
+
+    def contains(self, f: float):
+        return f > self.lower and f < self.upper
 
 def split_range(range_str: str) -> list[str]:
     segments: list[str] = []
@@ -32,7 +35,8 @@ def parse_range(
     lower = True
     inclusive = False
     equal = False
-    lower_bound = upper_bound = -1
+    lower_bound = -inf
+    upper_bound = inf
 
     for segment in range_segments:
         match segment:
@@ -57,7 +61,8 @@ def parse_range(
                     segment = float(segment)
 
                 if equal:
-                    lower_bound = upper_bound = segment
+                    lower_bound = inclusive_lower(segment)
+                    upper_bound = inclusive_upper(segment)
                 elif lower and not inclusive:
                     lower_bound = segment
                 elif lower and inclusive:
