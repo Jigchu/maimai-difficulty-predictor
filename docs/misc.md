@@ -1,5 +1,5 @@
-# Utility Functions
-Verious utility functions used by different component
+# Miscellaneous Functions
+Miscellaneous functions used by various components
 
 ## Settings
 ### `chart_directory`

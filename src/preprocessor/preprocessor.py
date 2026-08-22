@@ -34,8 +34,8 @@ def main():
     return
 
 
-# Filters out the data and returnss a list of all parsed 
-def filter_charts(out_dir: Path) -> list[Path]:
+# Filters the charts and returns a set of paths sorted by difficulty
+def filter_charts(out_dir: Path) -> dict[str, list[Path]]:
     version_filter = preprocessorSettings["version_filter"]
 
     chart_directory = misc_settings["chart_directory"]
@@ -51,7 +51,8 @@ def filter_charts(out_dir: Path) -> list[Path]:
         for current_directory, _, file_names in version_directory.walk():
             indexed_charts.extend([current_directory / file_name for file_name in file_names if file_name == "maidata.txt"])
 
-    processed_files: list[Path] = []
+    difficulty_filter = preprocessorSettings["difficulty_filter"]
+    processed_files: dict[str, list[Path]] = {difficulty_list[difficulty - 2]: [] for difficulty in difficulty_filter}
     for chart_file in indexed_charts:
         raw_data = read_simai_data(chart_file)
         dict_simai_data = raw_data.model_dump()
@@ -60,7 +61,7 @@ def filter_charts(out_dir: Path) -> list[Path]:
             chart_file = out_dir / f"{chart.chart_name}_{chart.chart_difficulty}_{chart.chart_level}"
             chart_file.touch()
             _ = chart_file.write_text(chart.model_dump_json())
-            processed_files.append(chart_file)
+            processed_files[chart.chart_difficulty].append(chart_file)
 
     return processed_files
 
@@ -108,7 +109,7 @@ def normalize_chart_level(chart_level: str) -> float:
     
     return base_chart_level if chart_constant < plus_chart_level else plus_chart_level
 
-def split_charts(chart_files: list[Path]):
+def split_charts(chart_files: dict[str, list[Path]]):
     return
 
 

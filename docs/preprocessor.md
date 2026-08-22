@@ -12,7 +12,10 @@ The preprocessor has 3 functions:
 As the name suggests, `level_filter` filters by level. In this case level is the numerical rating of the chart. You can use similar notation to `version_filter` for `level_filter`. For example, to indicate a difficulty level between `7+` to `13` inclusive use `7+ <= x <= 13`.
 
 ### `difficulty_filter`
-Filters by difficulty. For this just indiciate the wanted difficulties using a list of their names, for example `["Expert", "Advanced", "Re:Master"]` capitalization and the colon in `Re:Master` can be excluded/included.
+Filters by difficulty. For this just indicate the wanted difficulties using a list of their names, for example `["Expert", "Advanced", "Re:Master"]`. Capitalization can be excluded/included. `Easy` charts will never be counted as they are unplayable after `FINALE`. `Utage` charts however can be included if wanted.
 
-### `filter_utage`
-A toggle to determine if `utage` difficulty charts should be filtered out. Due to the nature of `utage` charts essentially being joke charts, this is enabled by default.
+### `training_testing_split`
+A 2 float list stating the percentage split of charts to training and testing respectively. For example, `[80, 20]` would allocate 80% of the indexed charts for training and 20% of the charts for testing. If the sum of the 2 numbers do not equal 100%, the rest of the charts will go to either training or testing sets depending on `testing_split_bias`
+
+### `testing_split_bias`
+A boolean indicating whether chart splitting will bias the testing set. To elaborate, it determines where excess/remainding charts are placed. For example, if `training_testing_split` is `[50, 50]`, and there are an odd number of charts that are indexed. The remaining one chart will go to the testing set if `testing_split_bias` is `true` and the training set if not
