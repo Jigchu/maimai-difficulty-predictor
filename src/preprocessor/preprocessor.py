@@ -1,9 +1,9 @@
 from pathlib import Path
 
-from pydantic import BaseModel
-
 from misc.data import data_directory, difficulty_list
 from misc.settings import misc_settings
+from pydantic import BaseModel
+
 from preprocessor.settings import preprocessorSettings
 
 
@@ -108,10 +108,6 @@ def normalize_chart_level(chart_level: str) -> float:
     chart_constant = float(chart_level)
     
     return base_chart_level if chart_constant < plus_chart_level else plus_chart_level
-
-def split_charts(chart_files: dict[str, list[Path]]):
-    return
-
 
 if __name__ == "__main__":
     main()
