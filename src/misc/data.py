@@ -24,14 +24,16 @@ class VersionListBuildFields(BaseModel):
 def get_data_directory() -> Path:
     project_root = Path(__file__).resolve().parent.parent.parent
     data_dir = project_root / "data/"
-    data_dir.mkdir()
+    if not data_dir.exists():
+        data_dir.mkdir()
 
-    return data_directory
+    return data_dir
 
 
 def update_version_list():
     version_list_file = data_directory / "version_list.txt"
-    version_list_file.touch()
+    if not version_list_file.exists():
+        version_list_file.touch()
 
     chart_directory = misc_settings["chart_directory"]
 

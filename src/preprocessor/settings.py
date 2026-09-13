@@ -3,8 +3,8 @@ from typing import NamedTuple, TypedDict
 
 from pydantic import BaseModel
 
-from misc.build_file import retrieve_build_files
 from misc.bounded_range import BoundedRange, parse_range, split_range
+from misc.build_file import retrieve_build_files
 from misc.data import difficulty_list, version_to_int
 
 
@@ -12,28 +12,25 @@ class PreprocessorSettings(TypedDict):
     version_filter: BoundedRange
     level_filter: BoundedRange
     difficulty_filter: list[int]
-    training_testing_split: TrainingTestingSplit
-    testing_split_bias: bool
 
 
 class PreprocessorJSONFields(BaseModel):
     version_filter: str = ""
     level_filter: str = ""
     difficulty_filter: list[str] = []
-    training_testing_split: list[float] = []
-    testing_split_bias: bool = True
+
 
 class TrainingTestingSplit(NamedTuple):
     training: float
     testing: float
 
+
 _default_settings = PreprocessorSettings(
-        version_filter=BoundedRange(-inf, inf),
-        level_filter=BoundedRange(-inf, inf),
-        difficulty_filter=[],
-        training_testing_split=TrainingTestingSplit(80, 20),
-        testing_split_bias=True
+    version_filter=BoundedRange(-inf, inf),
+    level_filter=BoundedRange(-inf, inf),
+    difficulty_filter=[2, 3, 4, 5, 6],
 )
+
 
 def return_settings() -> PreprocessorSettings:
     build_files = retrieve_build_files()
@@ -44,6 +41,7 @@ def return_settings() -> PreprocessorSettings:
             return settings
 
     return _default_settings
+
 
 def parse_settings(json_string: str) -> PreprocessorSettings | None:
     settings: PreprocessorSettings = _default_settings
@@ -74,14 +72,18 @@ def parse_settings(json_string: str) -> PreprocessorSettings | None:
 
     if len(json_fields.difficulty_filter) != 0:
         settings_found = True
-        difficulty_filter = [difficulty.lower() for difficulty in json_fields.difficulty_filter]
-        difficulty_filter = [difficulty for difficulty in difficulty_filter if difficulty in difficulty_list]
-        processed_filter = list(map(lambda x: difficulty_list.index(x) + 2, difficulty_filter))
+        difficulty_filter = [
+            difficulty.lower() for difficulty in json_fields.difficulty_filter
+        ]
+        difficulty_filter = [
+            difficulty
+            for difficulty in difficulty_filter
+            if difficulty in difficulty_list
+        ]
+        processed_filter = list(
+            map(lambda x: difficulty_list.index(x) + 2, difficulty_filter)
+        )
         settings["difficulty_filter"] = processed_filter
-
-    if len(json_fields.training_testing_split) < 2:
-        testing, training = json_fields.training_testing_split[:2]
-        settings["training_testing_split"] = TrainingTestingSplit(training, testing)
 
     return None if not settings_found else settings
 

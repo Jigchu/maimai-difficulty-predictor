@@ -4,6 +4,8 @@ from typing import Callable, NamedTuple
 """
 A non inclusive range of positive numbers
 """
+
+
 class BoundedRange(NamedTuple):
     lower: float
     upper: float
@@ -11,11 +13,13 @@ class BoundedRange(NamedTuple):
     def contains(self, f: float):
         return f > self.lower and f < self.upper
 
-def split_range(range_str: str) -> list[str]:
-    segments: list[str] = []
-    segment_index: int = 0
-    prev_char = ""
 
+def split_range(range_str: str) -> list[str]:
+    segments: list[str] = [range_str[0]]
+    segment_index: int = 0
+    prev_char = range_str[0]
+
+    range_str = range_str[1:]
     for char in range_str:
         if prev_char.isalnum() != char.isalnum():
             segments.append("")
